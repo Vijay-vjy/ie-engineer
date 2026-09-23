@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAM / SMV Calculator for Garments | Vignesh Prabhu .S</title>
+  <meta name="description" content="Free SAM / SMV calculator for apparel: calculate operation SAM from time study, total garment SAM with machine split, target output, operators required and line efficiency.">
+  <meta name="author" content="Vignesh Prabhu .S">
+  <meta name="theme-color" content="#0F1E3A">
+  <meta property="og:title" content="SAM / SMV Calculator for Garments | Vignesh Prabhu .S">
+  <meta property="og:description" content="Free SAM / SMV calculator for apparel: calculate operation SAM from time study, total garment SAM with machine split, target output, operators required and line efficiency.">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/calculator.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a href="index.html" class="brand" aria-label="Vignesh Prabhu .S — home">
+        <img src="assets/images/logo-mark.png" alt="" width="43" height="40">
+        <span class="brand-text"><span class="brand-name">Vignesh Prabhu .S</span><span class="brand-role">Industrial Engineering</span></span>
+      </a>
+      <button class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="index.html" data-page="index.html">Home</a></li>
+        <li><a href="about.html" data-page="about.html">About</a></li>
+        <li><a href="sam-calculator.html" data-page="sam-calculator.html">SAM Calculator</a></li>
+        <li><a href="contact.html" class="btn btn-gold btn-sm" data-page="contact.html">Contact</a></li>
+      </ul>
+    </div>
+  </header>
+  <main>
+
+    <section class="page-hero">
+      <div class="container">
+        <div class="crumbs"><a href="index.html">Home</a> / SAM Calculator</div>
+        <h1>SAM / SMV Calculator</h1>
+        <p><b style="color:#fff">SAM</b> (Standard Allowed Minutes), also called <b style="color:#fff">SMV</b> (Standard Minute Value), is the time a qualified operator needs to complete an operation at standard pace, including allowances. Calculate it from your time study data below.</p>
+      </div>
+    </section>
+
+    <section class="section" id="calculator" style="padding-top:56px">
+      <div class="container">
+        <div class="tabs" role="tablist" aria-label="Calculator sections">
+          <button class="tab" role="tab" data-tab="operation" aria-selected="true" aria-controls="panel-operation" id="tab-operation"><span class="n">01</span>Operation SAM</button>
+          <button class="tab" role="tab" data-tab="garment" aria-selected="false" aria-controls="panel-garment" id="tab-garment" tabindex="-1"><span class="n">02</span>Garment SAM</button>
+          <button class="tab" role="tab" data-tab="planning" aria-selected="false" aria-controls="panel-planning" id="tab-planning" tabindex="-1"><span class="n">03</span>Production planning</button>
+        </div>
+
+        <!-- ============ 1. OPERATION SAM ============ -->
+        <div class="panel" id="panel-operation" role="tabpanel" aria-labelledby="tab-operation">
+          <div class="calc-grid">
+            <div>
+              <div class="calc-card">
+                <h3><span class="step">1</span>Operation details</h3>
+                <div class="row">
+                  <div class="inp"><label for="opName">Operation name</label><input autocomplete="off" id="opName" type="text" placeholder="e.g. Attach collar"></div>
+                  <div class="inp"><label for="machine">Machine type</label><select autocomplete="off" id="machine"><option value="">Select (optional)</option><option>SNLS</option><option>DNLS</option><option>Overlock</option><option>Flatlock</option><option>Bartack</option><option>Buttonhole</option><option>Button sew</option><option>Kansai</option><option>Snap / Rivet</option><option>Iron / Press</option><option>Manual / Helper</option><option>Other</option></select></div>
+                </div>
+              </div>
+
+              <div class="calc-card">
+                <h3><span class="step">2</span>Cycle time readings <small style="font-family:var(--font-body);font-size:.85rem;color:var(--muted);font-weight:400">(seconds)</small></h3>
+                <p class="hint">Record 5–10 cycles with a stopwatch. Press Enter to jump to the next box.</p>
+                <div class="readings" id="readings"></div>
+                <div class="inline-actions">
+                  <button type="button" class="btn btn-ghost btn-sm" id="addReading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Add reading</button>
+                  <label class="toggle"><input autocomplete="off" type="checkbox" id="excludeOutliers" checked> Ignore abnormal readings (±25% from median)</label>
+                </div>
+                <div class="readings-stats">
+                  <span>Used: <b id="rsCount">0</b></span>
+                  <span>Average: <b id="rsAvg">—</b></span>
+                  <span>Min: <b id="rsMin">—</b></span>
+                  <span>Max: <b id="rsMax">—</b></span>
+                </div>
+              </div>
+
+              <div class="calc-card">
+                <h3><span class="step">3</span>Rating &amp; allowances</h3>
+                <div class="row">
+                  <div class="inp"><label for="rating">Performance rating <small>(100 = normal pace)</small></label><div class="suffix"><input autocomplete="off" id="rating" type="number" min="1" max="200" step="1" value="100"><span>%</span></div></div>
+                  <div></div>
+                </div>
+                <div class="row-3">
+                  <div class="inp"><label for="allowPfd">Personal, fatigue &amp; delay</label><div class="suffix"><input autocomplete="off" id="allowPfd" type="number" min="0" step="0.5" value="10"><span>%</span></div></div>
+                  <div class="inp"><label for="allowMachine">Machine delay</label><div class="suffix"><input autocomplete="off" id="allowMachine" type="number" min="0" step="0.5" value="3"><span>%</span></div></div>
+                  <div class="inp"><label for="allowBundle">Bundle handling</label><div class="suffix"><input autocomplete="off" id="allowBundle" type="number" min="0" step="0.5" value="2"><span>%</span></div></div>
+                </div>
+                <div class="allow-total"><span>Total allowance</span><b id="allowTotal">15.0 %</b></div>
+              </div>
+
+              <div class="calc-card">
+                <h3><span class="step">4</span>Target settings</h3>
+                <div class="row">
+                  <div class="inp"><label for="effPlan">Planned efficiency</label><div class="suffix"><input autocomplete="off" id="effPlan" type="number" min="1" max="150" step="1" value="70"><span>%</span></div></div>
+                  <div class="inp"><label for="hoursDay">Working hours per day</label><div class="suffix"><input autocomplete="off" id="hoursDay" type="number" min="0.5" max="24" step="0.5" value="8"><span>hrs</span></div></div>
+                </div>
+              </div>
+            </div>
+
+            <aside class="result-panel" aria-live="polite">
+              <div class="rp-label">Standard Allowed Minutes</div>
+              <div class="rp-op" id="rpOp">Untitled operation</div>
+              <div class="rp-sam" id="rpSam">—<small>min</small></div>
+              <div class="rp-sec" id="rpSec">Enter at least one cycle time reading</div>
+              <ul class="rp-list">
+                <li><span>Avg. observed time</span><b id="rAvg">—</b></li>
+                <li><span>Basic time</span><b id="rBasic">—</b></li>
+                <li><span>Allowances</span><b id="rAllow">—</b></li>
+                <li><span>Target @ 100%</span><b id="rT100">—</b></li>
+                <li class="hl"><span id="rTeffLbl">Target @ 70% efficiency</span><b id="rTeff">—</b></li>
+                <li class="hl"><span id="rDayLbl">Target per day (8 hrs)</span><b id="rDay">—</b></li>
+              </ul>
+              <div class="rp-actions">
+                <button type="button" class="btn btn-gold btn-add" id="btnAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Add to garment list</button>
+                <button type="button" class="btn btn-dim" id="btnCopy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg> Copy</button>
+                <button type="button" class="btn btn-dim" id="btnPrintOp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></svg> PDF</button>
+                <button type="button" class="btn btn-dim" id="btnReset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg> Reset</button>
+                <button type="button" class="btn btn-dim" id="btnExample">Load example</button>
+              </div>
+            </aside>
+          </div>
+        </div>
+
+        <!-- ============ 2. GARMENT SAM ============ -->
+        <div class="panel" id="panel-garment" role="tabpanel" aria-labelledby="tab-garment" hidden>
+          <div class="calc-grid">
+            <div class="calc-card">
+              <h3><span class="step"><svg style="width:15px;height:15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg></span>Garment operation list</h3>
+              <p class="hint">Add every operation of the style. Edit any cell directly — totals update instantly and are saved in this browser.</p>
+              <div class="inp" style="max-width:360px"><label for="gStyle">Style / garment name</label><input autocomplete="off" id="gStyle" type="text" placeholder="e.g. Men's crew-neck T-shirt"></div>
+              <div class="gtable-wrap">
+                <table class="gtable">
+                  <thead><tr><th>#</th><th>Operation</th><th>Machine</th><th style="text-align:right">SAM (min)</th><th></th></tr></thead>
+                  <tbody id="gBody"></tbody>
+                  <tfoot><tr><td></td><td colspan="2">Total garment SAM</td><td class="total" id="gTotal">0.000</td><td></td></tr></tfoot>
+                </table>
+              </div>
+              <div class="table-actions">
+                <button type="button" class="btn btn-navy btn-sm" id="gAdd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Add operation</button>
+                <button type="button" class="btn btn-ghost btn-sm" id="gSample">Load sample T-shirt</button>
+                <button type="button" class="btn btn-ghost btn-sm" id="gCsv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg> Excel (CSV)</button>
+                <button type="button" class="btn btn-ghost btn-sm" id="gPrint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></svg> PDF</button>
+                <button type="button" class="btn btn-ghost btn-sm" id="gClear">Clear all</button>
+              </div>
+            </div>
+
+            <aside class="result-panel" aria-live="polite">
+              <div class="rp-label">Total garment SAM</div>
+              <div class="rp-op" id="gCount">0 operations</div>
+              <div class="rp-sam" id="gTotalSide">0.000<small>min</small></div>
+              <div class="rp-sec" id="gT100">—</div>
+              <div class="rp-label" style="margin:6px 0 16px">Machine-wise SAM split</div>
+              <ul class="split-list" id="gSplit"></ul>
+              <div class="rp-actions"><button type="button" class="btn btn-gold btn-add" id="gToPlan">Use in production planning <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+            </aside>
+          </div>
+        </div>
+
+        <!-- ============ 3. PLANNING ============ -->
+        <div class="panel" id="panel-planning" role="tabpanel" aria-labelledby="tab-planning" hidden>
+          <div class="calc-card">
+            <h3><span class="step"><svg style="width:15px;height:15px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 21h20M4 21V10l5 3V10l5 3V10l5 3v8"/><path d="M17 6V3h3v10"/></svg></span>Line inputs</h3>
+            <p class="hint">Fill in what you know — each result appears as soon as its inputs are available.</p>
+            <div class="row-3">
+              <div class="inp"><label for="pSam">Garment SAM</label><div class="suffix"><input autocomplete="off" id="pSam" type="number" min="0" step="0.001" placeholder="e.g. 12.5"><span>min</span></div></div>
+              <div class="inp"><label for="pOps">Number of operators</label><input autocomplete="off" id="pOps" type="number" min="1" step="1" value="30"></div>
+              <div class="inp"><label for="pHours">Working hours per day</label><div class="suffix"><input autocomplete="off" id="pHours" type="number" min="0.5" step="0.5" value="8"><span>hrs</span></div></div>
+            </div>
+            <p class="inline-note"><button type="button" class="link-btn" id="pUseGarment">Use total from Garment SAM tab</button> <span id="pGarmentTotal"></span></p>
+            <div class="row-3">
+              <div class="inp"><label for="pEff">Planned efficiency</label><div class="suffix"><input autocomplete="off" id="pEff" type="number" min="1" max="150" step="1" value="65"><span>%</span></div></div>
+              <div class="inp"><label for="pWant">Required output <small>(for operators needed)</small></label><div class="suffix"><input autocomplete="off" id="pWant" type="number" min="0" step="1" placeholder="e.g. 1200"><span>pcs</span></div></div>
+              <div class="inp"><label for="pActual">Actual output <small>(for line efficiency)</small></label><div class="suffix"><input autocomplete="off" id="pActual" type="number" min="0" step="1" placeholder="e.g. 780"><span>pcs</span></div></div>
+            </div>
+            <div class="plan-results">
+              <div class="plan-box"><div class="k">Target output</div><div class="v" id="pTarget">—</div><div class="s" id="pTargetSub"></div></div>
+              <div class="plan-box"><div class="k">Operators required</div><div class="v" id="pNeed">—</div><div class="s" id="pNeedSub"></div></div>
+              <div class="plan-box" id="pEffBox"><div class="k">Line efficiency</div><div class="v" id="pLine">—</div><div class="s" id="pLineSub"></div></div>
+            </div>
+            <div class="table-actions"><button type="button" class="btn btn-ghost btn-sm" id="pReset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg> Reset</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WORKED EXAMPLE -->
+    <section class="section bg-white no-print">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">Worked example</span>
+          <h2>How SAM is calculated, step by step</h2>
+        </div>
+        <div class="example">
+          <ol class="steps-list reveal">
+            <li><b>Take readings.</b> Five cycles of “Collar attach”: <code>30, 32, 31, 29, 33 s</code></li>
+            <li><b>Average observed time.</b> <code>155 ÷ 5 = 31 s = 0.517 min</code></li>
+            <li><b>Apply rating (90%).</b> Basic time <code>= 0.517 × 0.90 = 0.465 min</code></li>
+            <li><b>Add allowances (15%).</b> SAM <code>= 0.465 × 1.15 = 0.535 min</code></li>
+            <li><b>Targets.</b> <code>60 ÷ 0.535 = 112 pcs/hr</code> at 100%, <code>78 pcs/hr</code> at 70% efficiency.</li>
+          </ol>
+          <div class="reveal">
+            <div class="answer">
+              <div class="rp-label" style="color:var(--gold-dark)">Answer</div>
+              <div class="mono">SAM = 0.535 min</div>
+              <p style="margin:8px 0 16px;color:var(--text)">Target: 112 pcs/hr at 100% · 78 pcs/hr at 70%</p>
+              <button type="button" class="btn btn-navy btn-sm" data-load-example>Load this example into the calculator</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FORMULAS & GUIDANCE -->
+    <section class="section no-print">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow">Reference</span>
+          <h2>Formulas &amp; guidance</h2>
+        </div>
+        <div class="formulas">
+          <div class="formula reveal"><div class="t">Basic time</div><div class="f">Observed time × Rating ÷ 100</div><p>Normalises the observed time to a standard pace.</p></div>
+          <div class="formula reveal"><div class="t">SAM / SMV</div><div class="f">Basic time × (1 + Allowance ÷ 100)</div><p>Adds personal, fatigue, delay, machine and bundle allowances.</p></div>
+          <div class="formula reveal"><div class="t">Target per hour</div><div class="f">60 ÷ SAM × Efficiency ÷ 100</div><p>Pieces one operator should produce in an hour.</p></div>
+          <div class="formula reveal"><div class="t">Target output</div><div class="f">Operators × Minutes × Eff% ÷ SAM</div><p>Line output for a shift at planned efficiency.</p></div>
+          <div class="formula reveal"><div class="t">Operators required</div><div class="f">Output × SAM ÷ (Minutes × Eff%)</div><p>Manpower needed to deliver a daily target.</p></div>
+          <div class="formula reveal"><div class="t">Line efficiency</div><div class="f">Output × SAM ÷ (Operators × Minutes) × 100</div><p>Share of available minutes turned into standard minutes.</p></div>
+        </div>
+
+        <div class="guide-grid">
+          <div class="card reveal">
+            <h3>Rating guide</h3>
+            <table class="gtbl">
+              <tr><td>Very slow, hesitant</td><td>70–80%</td></tr>
+              <tr><td>Steady but unhurried</td><td>85–95%</td></tr>
+              <tr><td>Normal, qualified pace</td><td>100%</td></tr>
+              <tr><td>Fast, skilled operator</td><td>105–120%</td></tr>
+            </table>
+          </div>
+          <div class="card reveal">
+            <h3>Typical allowances</h3>
+            <table class="gtbl">
+              <tr><td>Personal, fatigue &amp; delay</td><td>8–12%</td></tr>
+              <tr><td>Machine delay</td><td>2–5%</td></tr>
+              <tr><td>Bundle handling</td><td>1–4%</td></tr>
+              <tr><td>Common total (apparel)</td><td>12–20%</td></tr>
+            </table>
+          </div>
+          <div class="card reveal">
+            <h3>Time study tips</h3>
+            <ul style="margin:0;padding-left:18px">
+              <li>Time at least 5–10 cycles.</li>
+              <li>Study a trained operator using the correct method.</li>
+              <li>Rate the operator while timing, not afterwards.</li>
+              <li>Drop abnormal readings (thread breaks, interruptions).</li>
+              <li>Define clear start and end points for each cycle.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section bg-white no-print">
+      <div class="container">
+        <div class="section-head center reveal">
+          <span class="eyebrow">FAQ</span>
+          <h2>Frequently asked questions</h2>
+        </div>
+        <div class="faq">
+          <details><summary>Are SAM and SMV different?</summary><div class="ans">No. SAM (Standard Allowed Minutes) and SMV (Standard Minute Value) mean the same thing: the standard time, including allowances, to complete an operation or garment. Different factories and buyers simply use different names.</div></details>
+          <details><summary>How do I choose the right allowance %?</summary><div class="ans">Most apparel factories use a total of 12–20%. Start with around 10% personal, fatigue &amp; delay, then add machine delay (2–5%) and bundle handling (1–4%) based on the machine and how work is fed. Keep allowances consistent across styles so SAMs stay comparable.</div></details>
+          <details><summary>What is a good line efficiency?</summary><div class="ans">It depends on product complexity and style changes, but many garment lines run between 50% and 70%. Consistently above 65% is generally considered good; below 50% usually points to balancing, absenteeism, or loss-time issues worth investigating.</div></details>
+          <details><summary>Why are some readings crossed out?</summary><div class="ans">With “Ignore abnormal readings” switched on, any reading more than 25% away from the median is excluded from the average. These are usually interruptions such as thread breaks or material shortages. Switch the option off to include every reading.</div></details>
+          <details><summary>Can I use this outside the garment industry?</summary><div class="ans">Yes. The time study formulas are universal — any manual or machine-paced operation can be studied the same way. The machine list and allowance guidance are tuned for apparel, so adjust them to your process.</div></details>
+          <details><summary>Is my data saved?</summary><div class="ans">The garment operation list is saved only in your own browser so it’s still there when you come back. Nothing is sent to a server.</div></details>
+        </div>
+        <p class="disclaimer">Results are estimates based on your time study inputs.</p>
+      </div>
+    </section>
+
+    <section class="section cta-section">
+      <div class="container">
+        <div class="cta-band reveal">
+          <div>
+            <h2>Need a full time study or line balancing?</h2>
+            <p>I can set up accurate SAMs, balance your lines and build the dashboards to track them.</p>
+          </div>
+          <a href="contact.html" class="btn btn-gold">Contact me <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">Vignesh Prabhu .S</div>
+          <p>Industrial Engineering Manager with 8+ years in apparel manufacturing — SAM/SMV engineering, line balancing, Lean and cost optimisation.</p>
+        </div>
+        <div>
+          <h4>Quick links</h4>
+          <ul class="footer-list">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="sam-calculator.html">SAM / SMV Calculator</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Get in touch</h4>
+          <ul class="footer-list">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg><a data-site="email" href="#">email</a></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg><a data-site="phone" href="#">phone</a></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 10v7"/></svg><a data-site="linkedin" href="#">LinkedIn</a></li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span data-site="location">Tiruppur, Tamil Nadu, India</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span data-year>2026</span> Vignesh Prabhu .S All rights reserved.</span>
+        <span>Calculator results are estimates based on your inputs.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+  <script src="assets/js/export.js"></script>
+  <script src="assets/js/sam-calculator.js"></script>
+  <script src="assets/js/garment-sam.js"></script>
+  <script src="assets/js/planning.js"></script>
+</body>
+</html>
